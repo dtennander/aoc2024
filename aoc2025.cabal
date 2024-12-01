@@ -26,3 +26,12 @@ executable day1
         aoc2025
     hs-source-dirs:   day1
     default-language: GHC2024
+
+executable day2
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.20.0.0,
+        aoc2025
+    hs-source-dirs:   day2
+    default-language: GHC2024
