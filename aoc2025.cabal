@@ -46,3 +46,12 @@ executable day3
         transformers,
     hs-source-dirs:   day3
     default-language: GHC2024
+
+executable day4
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.20.0.0,
+        aoc2025
+    hs-source-dirs:   day4
+    default-language: GHC2024
