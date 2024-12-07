@@ -2,8 +2,10 @@ module Main where
 
 import Aoc (runner)
 import Control.Monad (guard)
-import Data.List (elemIndex, (!?))
-import Data.List.Split (split, splitOn)
+import Data.List (elemIndex)
+import Data.List.Split (splitOn)
+import Data.Maybe (fromMaybe)
+import GHC.List ((!?))
 import Text.Read (readMaybe)
 
 main :: IO ()
@@ -16,12 +18,13 @@ data Input = Input
   , updates :: [Update]
   }
 
+-- | parse the input to maybe our Input structure
 parse :: String -> Maybe Input
 parse s =
   Input <$> rules <*> updates
  where
-  rules = traverse asRule =<< (lines <$> first)
-  updates = traverse (traverse readMaybe . splitOn ",") =<< lines <$> second
+  rules = traverse asRule . lines =<< first
+  updates = traverse (traverse readMaybe . splitOn ",") . lines =<< second
   first = sections !? 0
   second = sections !? 1
   sections = splitOn "\n\n" s
@@ -29,16 +32,17 @@ parse s =
     [a, b] -> Just (read a, read b)
     _ -> Nothing
 
+-- | Solution to part 1
 p1 :: Input -> Int
 p1 (Input{rules, updates}) = sum . fmap takeMid . filter (follows rules) $ updates
 
 takeMid :: [a] -> a
-takeMid xs = xs !! ((length xs) `div` 2)
+takeMid xs = xs !! (length xs `div` 2)
 
 follows :: [Rule] -> Update -> Bool
-follows rs u = all (matches) rs
+follows rs u = all matches rs
  where
-  matches r = maybe True id $ do
+  matches r = fromMaybe True $ do
     (a, b) <- getIndexes r u
     return (a < b)
 
@@ -48,16 +52,17 @@ getIndexes (l, r) xs = do
   b <- elemIndex r xs
   return (a, b)
 
+-- | Solution to Part 2
 p2 :: Input -> Int
 p2 (Input{rules, updates}) = sum . fmap (takeMid . until (follows rules) update) . filter (not . follows rules) $ updates
  where
   update u = foldl' applyRule u rules
 
 applyRule :: Update -> Rule -> Update
-applyRule u r = maybe u id $ do
+applyRule u r = fromMaybe u $ do
   (a, b) <- getIndexes r u
   guard (a > b)
-  (start, (r' : tail')) <- return $ splitAt b u
+  (start, r' : tail') <- return $ splitAt b u
   return $ setAt a r' (start <> tail')
 
 setAt :: Int -> a -> [a] -> [a]

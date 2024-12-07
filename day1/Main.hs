@@ -1,7 +1,6 @@
 module Main where
 
 import Aoc (runner)
-import Control.Monad (liftM)
 import Data.List (sort, transpose)
 
 main :: IO ()
@@ -12,13 +11,13 @@ readLines :: String -> [[Integer]]
 readLines = transpose . fmap (fmap read . words) . lines
 
 part1 :: [[Integer]] -> Maybe Integer
-part1 = liftM sum . traverse absPairs . transpose . fmap sort
+part1 = fmap sum . traverse absPairs . transpose . fmap sort
  where
   absPairs [a, b] = Just $ abs (a - b)
   absPairs _ = Nothing
 
 part2 :: [[Integer]] -> Maybe Integer
-part2 = liftM sum . multiplyOccurences . fmap countElements
+part2 = fmap sum . multiplyOccurences . fmap countElements
  where
   countElements = foldl' count [] . sort
 

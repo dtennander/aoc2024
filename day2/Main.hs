@@ -28,7 +28,7 @@ isSafe p2 (x : y : rest) = failed $ foldl' checkEach initState (y : rest)
     | p2 && not (haveDroppedOne s) = s{haveDroppedOne = True}
     | otherwise = s{failed = True}
    where
-    diff = direction * ((lastLevel s) - n)
+    diff = direction * (lastLevel s - n)
   direction = max (-1) . min 1 $ (x - y)
 isSafe _ _ = False
 

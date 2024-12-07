@@ -18,14 +18,15 @@ import Text.Read (readMaybe)
 main :: IO ()
 main = runner lines (solver True) (solver False)
  where
+  solver :: Bool -> [String] -> Int
   solver p1 = runApp p1 . traverse findMuls
 
 {- | The App is a Alternative RWS,
 Reading part, Writing the Sum and keeping activation state
 -}
-type App = MaybeT (RWS Bool (Sum Integer) Bool)
+type App = MaybeT (RWS Bool (Sum Int) Bool)
 
-runApp :: Bool -> App a -> Integer
+runApp :: Bool -> App a -> Int
 runApp part1 app = getSum . snd $ execRWS (runMaybeT app) (not part1) True
 
 findMuls :: String -> App ()
@@ -38,8 +39,8 @@ findMuls ('m' : 'u' : 'l' : '(' : ss) = happyPath <|> findMuls ss
     mulIsActive <- get
     guard mulIsActive
     -- We are in a MonadFail so we handle the pattern match
-    (x', (',' : rest)) <- pure $ break (not . isDigit) ss
-    (y', (')' : rest')) <- pure $ break (not . isDigit) rest
+    (x', ',' : rest) <- pure $ span isDigit ss
+    (y', ')' : rest') <- pure $ span isDigit rest
     x <- MaybeT . return $ readMaybe x'
     y <- MaybeT . return $ readMaybe y'
     tell $ Sum (x * y)
